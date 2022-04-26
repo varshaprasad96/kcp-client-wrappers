@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 
+	"github.com/kcp-dev/apimachinery/pkg/logicalcluster"
 	"github.com/kcp-dev/kcp-client-wrappers/kubernetes"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
@@ -23,8 +24,9 @@ func main() {
 	}
 
 	ctx := context.Background()
+	clusterName := logicalcluster.New("admin")
 	klog.Info("admin")
-	list, err := clusterClient.Cluster("admin").RbacV1().ClusterRoles().List(ctx, metav1.ListOptions{})
+	list, err := clusterClient.Cluster(clusterName).RbacV1().ClusterRoles().List(ctx, metav1.ListOptions{})
 	if err != nil {
 		klog.Fatal(err)
 	}
@@ -33,7 +35,8 @@ func main() {
 	}
 
 	klog.Info("source")
-	list, err = clusterClient.Cluster("admin_source").RbacV1().ClusterRoles().List(ctx, metav1.ListOptions{})
+	clusterName = logicalcluster.New("admin_source")
+	list, err = clusterClient.Cluster(clusterName).RbacV1().ClusterRoles().List(ctx, metav1.ListOptions{})
 	if err != nil {
 		klog.Fatal(err)
 	}

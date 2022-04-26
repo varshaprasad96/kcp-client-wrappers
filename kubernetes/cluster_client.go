@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/kcp-dev/kcp-client-wrappers/kcp"
+	kcp "github.com/kcp-dev/apimachinery/pkg/client"
+	"github.com/kcp-dev/apimachinery/pkg/logicalcluster"
 	rbacapiv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -83,7 +84,7 @@ type ClusterClient struct {
 	delegate kubernetes.Interface
 }
 
-func (c *ClusterClient) Cluster(cluster string) kubernetes.Interface {
+func (c *ClusterClient) Cluster(cluster logicalcluster.LogicalCluster) kubernetes.Interface {
 	return &wrappedInterface{
 		cluster:  cluster,
 		delegate: c.delegate,
@@ -91,7 +92,7 @@ func (c *ClusterClient) Cluster(cluster string) kubernetes.Interface {
 }
 
 type wrappedInterface struct {
-	cluster  string
+	cluster  logicalcluster.LogicalCluster
 	delegate kubernetes.Interface
 }
 
@@ -283,12 +284,12 @@ func (w *wrappedInterface) StorageV1alpha1() storagev1alpha1.StorageV1alpha1Inte
 }
 
 type wrappedRbacV1 struct {
-	cluster  string
+	cluster  logicalcluster.LogicalCluster
 	delegate rbacv1.RbacV1Interface
 }
 
 func (w *wrappedRbacV1) RESTClient() rest.Interface {
-	panic("no")
+	return w.delegate.RESTClient()
 }
 
 func (w *wrappedRbacV1) ClusterRoles() rbacv1.ClusterRoleInterface {
@@ -311,7 +312,7 @@ func (w *wrappedRbacV1) RoleBindings(namespace string) rbacv1.RoleBindingInterfa
 }
 
 type wrappedClusterRole struct {
-	cluster  string
+	cluster  logicalcluster.LogicalCluster
 	delegate rbacv1.ClusterRoleInterface
 }
 

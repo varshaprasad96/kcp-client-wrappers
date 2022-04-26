@@ -3,6 +3,7 @@ module github.com/kcp-dev/kcp-client-wrappers
 go 1.17
 
 require (
+	github.com/kcp-dev/apimachinery v0.0.0-20220426201016-6bc8451bd9df
 	k8s.io/api v0.23.3
 	k8s.io/apimachinery v0.23.3
 	k8s.io/client-go v0.23.3
