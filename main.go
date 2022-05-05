@@ -7,7 +7,6 @@ import (
 
 	"github.com/kcp-dev/apimachinery/pkg/logicalcluster"
 	"github.com/kcp-dev/kcp-client-wrappers/kubernetes"
-	v1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
@@ -37,26 +36,22 @@ func main() {
 
 	ctx := context.Background()
 	clusterName := logicalcluster.New("root:default")
-	klog.Info("default")
-	// list, err := clusterClient.Cluster(clusterName).RbacV1().ClusterRoles().List(ctx, metav1.ListOptions{})
-	// if err != nil {
-	// 	klog.Fatal(err)
-	// }
-
-	clusterrole := v1.ClusterRole{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:        "test",
-			ClusterName: "root:default",
-		},
-	}
+	klog.Info(clusterName)
 
 	fmt.Println(clusterClient.Cluster(clusterName).RbacV1().RESTClient().APIVersion())
 
-	role, err := clusterClient.Cluster(clusterName).RbacV1().ClusterRoles().Create(ctx, &clusterrole, metav1.CreateOptions{})
-	fmt.Println(role.Name)
+	list, err := clusterClient.Cluster(clusterName).RbacV1().ClusterRoles().List(ctx, metav1.ListOptions{})
 	if err != nil {
 		klog.Fatal(err)
 	}
+
+	fmt.Println(len(list.Items))
+
+	// role, err := clusterClient.Cluster(clusterName).RbacV1().ClusterRoles().Get(ctx, "secret-reader", metav1.GetOptions{})
+	// fmt.Println(role.Name)
+	// if err != nil {
+	// 	klog.Fatal(err)
+	// }
 	// for _, cr := range list.Items {
 	// 	klog.InfoS("listed", "clusterName", cr.ClusterName, "name", cr.Name)
 	// }

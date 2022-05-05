@@ -181,7 +181,10 @@ func (w *wrappedInterface) CoordinationV1() coordinationv1.CoordinationV1Interfa
 }
 
 func (w *wrappedInterface) CoreV1() corev1.CoreV1Interface {
-	panic("not implemented") // TODO: Implement
+	return &wrappedCoreV1{
+		cluster:  w.cluster,
+		delegate: w.delegate.CoreV1(),
+	}
 }
 
 func (w *wrappedInterface) DiscoveryV1() discoveryv1.DiscoveryV1Interface {
