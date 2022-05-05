@@ -97,7 +97,7 @@ type wrappedInterface struct {
 }
 
 func (w *wrappedInterface) Discovery() discovery.DiscoveryInterface {
-	panic("not implemented") // TODO: Implement
+	return w.delegate.Discovery()
 }
 
 func (w *wrappedInterface) AdmissionregistrationV1() admissionregistrationv1.AdmissionregistrationV1Interface {
@@ -339,10 +339,17 @@ func (w *wrappedClusterRole) DeleteCollection(ctx context.Context, opts metav1.D
 }
 
 func (w *wrappedClusterRole) Get(ctx context.Context, name string, opts metav1.GetOptions) (*rbacapiv1.ClusterRole, error) {
-	panic("not implemented") // TODO: Implement
+	ctxCluster, ok := kcp.ClusterFromContext(ctx)
+	if !ok {
+		ctx = kcp.WithCluster(ctx, w.cluster)
+	} else if ctxCluster != w.cluster {
+		return nil, fmt.Errorf("cluster mismatch: context=%q, client=%q", ctxCluster, w.cluster)
+	}
+	return w.delegate.Get(ctx, name, opts)
 }
 
 func (w *wrappedClusterRole) List(ctx context.Context, opts metav1.ListOptions) (*rbacapiv1.ClusterRoleList, error) {
+	fmt.Println("here")
 	ctxCluster, ok := kcp.ClusterFromContext(ctx)
 	if !ok {
 		ctx = kcp.WithCluster(ctx, w.cluster)
