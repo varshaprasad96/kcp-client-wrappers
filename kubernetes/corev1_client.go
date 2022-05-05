@@ -2,7 +2,9 @@ package kubernetes
 
 import (
 	"context"
+	"fmt"
 
+	kcp "github.com/kcp-dev/apimachinery/pkg/client"
 	"github.com/kcp-dev/apimachinery/pkg/logicalcluster"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -83,7 +85,13 @@ type wrappedSecrets struct {
 }
 
 func (w *wrappedSecrets) Create(ctx context.Context, secret *v1.Secret, opts metav1.CreateOptions) (*v1.Secret, error) {
-	panic("no")
+	ctxCluster, ok := kcp.ClusterFromContext(ctx)
+	if !ok {
+		ctx = kcp.WithCluster(ctx, w.cluster)
+	} else if ctxCluster != w.cluster {
+		return nil, fmt.Errorf("cluster mismatch: context=%q, client=%q", ctxCluster, w.cluster)
+	}
+	return w.delegate.Create(ctx, secret, opts)
 }
 
 func (w *wrappedSecrets) Update(ctx context.Context, secret *v1.Secret, opts metav1.UpdateOptions) (*v1.Secret, error) {
@@ -99,11 +107,24 @@ func (w *wrappedSecrets) DeleteCollection(ctx context.Context, opts metav1.Delet
 }
 
 func (w *wrappedSecrets) Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.Secret, error) {
-	panic("no")
+	ctxCluster, ok := kcp.ClusterFromContext(ctx)
+	if !ok {
+		ctx = kcp.WithCluster(ctx, w.cluster)
+	} else if ctxCluster != w.cluster {
+		return nil, fmt.Errorf("cluster mismatch: context=%q, client=%q", ctxCluster, w.cluster)
+	}
+	return w.delegate.Get(ctx, name, opts)
 }
 
 func (w *wrappedSecrets) List(ctx context.Context, opts metav1.ListOptions) (*v1.SecretList, error) {
-	panic("no")
+	fmt.Println("here")
+	ctxCluster, ok := kcp.ClusterFromContext(ctx)
+	if !ok {
+		ctx = kcp.WithCluster(ctx, w.cluster)
+	} else if ctxCluster != w.cluster {
+		return nil, fmt.Errorf("cluster mismatch: context=%q, client=%q", ctxCluster, w.cluster)
+	}
+	return w.delegate.List(ctx, opts)
 }
 
 func (w *wrappedSecrets) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
