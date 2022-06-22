@@ -371,5 +371,11 @@ func (w *wrappedClusterRole) Patch(ctx context.Context, name string, pt types.Pa
 }
 
 func (w *wrappedClusterRole) Apply(ctx context.Context, clusterRole *rbacapplyv1.ClusterRoleApplyConfiguration, opts metav1.ApplyOptions) (result *rbacapiv1.ClusterRole, err error) {
-	panic("not implemented") // TODO: Implement
+	ctxCluster, ok := kcp.ClusterFromContext(ctx)
+	if !ok {
+		ctx = kcp.WithCluster(ctx, w.cluster)
+	} else if ctxCluster != w.cluster {
+		return nil, fmt.Errorf("cluster mismatch: context=%q, client=%q", ctxCluster, w.cluster)
+	}
+	return w.delegate.Apply(ctx, clusterRole, opts)
 }
