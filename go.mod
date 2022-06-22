@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/kcp-dev/apimachinery v0.0.0-20220426201016-6bc8451bd9df
+	github.com/kcp-dev/logicalcluster v1.0.0
 	k8s.io/api v0.23.3
 	k8s.io/apimachinery v0.23.3
 	k8s.io/client-go v0.23.3
